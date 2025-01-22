@@ -1,10 +1,12 @@
 To integrate AWS Cognito authentication and automate deployment using GitHub Actions in your React + Vite project, follow these steps:
 
+
 1. Set Up AWS Cognito User Pool:
 
 Create a User Pool: In the AWS Management Console, navigate to Amazon Cognito and create a new user pool to manage user authentication.
 
 Configure App Client: Within the user pool, set up an app client to obtain the App Client ID, which your React application will use to interact with Cognito.
+
 
 2. Integrate AWS Cognito with React Application:
 
