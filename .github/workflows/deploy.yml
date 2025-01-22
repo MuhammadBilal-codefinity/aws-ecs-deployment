@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - dev  # Add dev branch here to handle both branches
 
 jobs:
   build:
@@ -23,18 +24,32 @@ jobs:
       - name: Build React app
         run: npm run build
 
+      - name: Set up S3 and CloudFront variables
+        run: |
+          if [[ $GITHUB_REF == 'refs/heads/main' ]]; then
+            echo "AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET_MAIN }}"
+            echo "AWS_CLOUDFRONT_DISTRIBUTION_ID=${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID_MAIN }}"
+          elif [[ $GITHUB_REF == 'refs/heads/dev' ]]; then
+            echo "AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET_DEV }}"
+            echo "AWS_CLOUDFRONT_DISTRIBUTION_ID=${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID_DEV }}"
+          fi
+        env:
+          GITHUB_REF: ${{ github.ref }}
+
       - name: Deploy to AWS S3
         run: |
-          aws s3 sync dist/ s3://${{ secrets.AWS_S3_BUCKET_MAIN }}/ --delete
+          aws s3 sync dist/ s3://${{ env.AWS_S3_BUCKET }} --delete
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_S3_BUCKET: ${{ env.AWS_S3_BUCKET }}
 
       - name: Invalidate CloudFront cache
         run: |
-          aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID_MAIN }} --paths "/*"
+          aws cloudfront create-invalidation --distribution-id ${{ env.AWS_CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_CLOUDFRONT_DISTRIBUTION_ID: ${{ env.AWS_CLOUDFRONT_DISTRIBUTION_ID }}
