@@ -31,6 +31,7 @@ export default {
 };
 Implement Authentication: Utilize Amplify's Auth module to handle user sign-up, sign-in, and session management within your React components.
 
+
 3. Automate Deployment with GitHub Actions:
 
 Create GitHub Actions Workflow: In your repository, create a .github/workflows/deploy.yml file to define the CI/CD pipeline.
