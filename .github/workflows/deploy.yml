@@ -23,25 +23,18 @@ jobs:
       - name: Build React app
         run: npm run build
 
-      - name: Print S3 Bucket Name (debug)
-        run: echo "S3 Bucket: $AWS_S3_BUCKET_MAIN"
-        env:
-          AWS_S3_BUCKET_MAIN: ${{ secrets.AWS_S3_BUCKET_MAIN }}
-
       - name: Deploy to AWS S3
         run: |
-          aws s3 sync dist/ s3://$AWS_S3_BUCKET_MAIN/ --delete
+          aws s3 sync dist/ s3://${{ secrets.AWS_S3_BUCKET_MAIN }}/ --delete
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
-          AWS_S3_BUCKET_MAIN: ${{ secrets.AWS_S3_BUCKET_MAIN }}
 
       - name: Invalidate CloudFront cache
         run: |
-          aws cloudfront create-invalidation --distribution-id $AWS_CLOUDFRONT_DISTRIBUTION_ID_MAIN --paths "/*"
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID_MAIN }} --paths "/*"
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
-          AWS_CLOUDFRONT_DISTRIBUTION_ID_MAIN: ${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID_MAIN }}
