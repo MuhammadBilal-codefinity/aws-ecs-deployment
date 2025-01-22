@@ -6,7 +6,7 @@ function App() {
 
   const signOutRedirect = () => {
     auth.removeUser();
-    
+
     const clientId = "hlgot1g4icru823h0oq0q97i9";
     const logoutUri = "http://localhost:5173?logged_out=true"; // Add a query parameter to identify logout redirect
     const cognitoDomain = "https://eu-north-1j1t8yncd2.auth.eu-north-1.amazoncognito.com";
@@ -52,7 +52,7 @@ function App() {
   }
 
   return (
-    <div>
+    <div style={{background:"green" , color:"white" , padding:"10px" , minHeight:"100vh" , boxSizing:"border-box"}}>
       <button onClick={() => auth.signinRedirect()}>Sign in</button>
       <button onClick={() => signOutRedirect()}>Sign out</button>
     </div>
