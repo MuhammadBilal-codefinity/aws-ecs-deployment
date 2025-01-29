@@ -3,7 +3,7 @@ name: CI/CD with Cypress Pre-Deployment Check
 on:
   push:
     branches:
-      - main
+      - aws-ecs-deployment
 
 jobs:
   build-test-deploy:
@@ -25,11 +25,23 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
+      - name: Start the Server
+        run: |
+          # Start your server in the background (for example, using `npm run dev` or Docker)
+          nohup npm run dev &  # or adjust to your server command
+
       - name: Run Cypress Tests (Fail on Test Failure)
         run: |
+          # Wait a bit to ensure the server has started (use an appropriate wait time or polling method)
+          sleep 10
           npx cypress run
 
-      # # Cypress tests passed if we reach this point
+      - name: Post-Tests Cleanup (Optional)
+        run: |
+          # Stop the server if needed
+          kill $(ps aux | grep 'npm start' | awk '{print $1}')
+          
+      # Uncomment and fill in the following if you need to deploy to ECR after tests pass
       # - name: Configure AWS CLI
       #   uses: aws-actions/configure-aws-credentials@v2
       #   with:
