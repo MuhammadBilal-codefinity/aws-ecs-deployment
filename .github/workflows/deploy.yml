@@ -69,7 +69,7 @@ jobs:
 
       - name: Register ECS Task Definition with New Image
         run: |
-          aws ecs register-task-definition \
+          TASK_DEFINITION_ARN=$(aws ecs register-task-definition \
             --family $ECS_TASK_FAMILY \
             --cpu "256" \
             --memory "512" \
@@ -79,7 +79,7 @@ jobs:
               \"image\": \"$ECR_REPO_URI:$IMAGE_TAG\", 
               \"memory\": 512, 
               \"essential\": true
-            }]" --query 'taskDefinition.taskDefinitionArn' --output text)
+          }]" --query 'taskDefinition.taskDefinitionArn' --output text)
 
           # Extract the latest revision from the ARN (e.g., family-name:revision)
           LATEST_REVISION=$(echo $TASK_DEFINITION_ARN | awk -F':' '{print $2}')
