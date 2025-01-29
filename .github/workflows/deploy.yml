@@ -98,7 +98,7 @@ jobs:
             --query 'taskDefinition.taskDefinitionArn' --output text)
 
           # Extract the latest revision from the ARN (e.g., family-name:revision)
-          LATEST_REVISION=$(echo $TASK_DEFINITION_ARN | awk -F':' '{print $2}')
+          LATEST_REVISION=$(echo $TASK_DEFINITION_ARN | awk -F':' '{print $NF}')
           echo "LATEST_REVISION=$LATEST_REVISION" >> $GITHUB_ENV
 
 
