@@ -67,26 +67,28 @@ jobs:
         run: |
           docker push $ECR_REPO_URI:$IMAGE_TAG
 
-      - name: Update ECS Task Definition with New Image
+      - name: Register ECS Task Definition with New Image
         run: |
-          # Register a new task definition with the updated image
           aws ecs register-task-definition \
             --family $ECS_TASK_FAMILY \
+            --cpu "256" \
+            --memory "512" \
+            --network-mode "awsvpc" \
             --container-definitions "[{
               \"name\": \"container-name\", 
               \"image\": \"$ECR_REPO_URI:$IMAGE_TAG\", 
-              \"memory\": 512,               
+              \"memory\": 512, 
               \"essential\": true
             }]"
 
       - name: Update ECS Service with New Task Definition
         run: |
-          # Update the ECS service to use the latest task definition revision
           aws ecs update-service \
             --cluster $ECS_CLUSTER_NAME \
             --service $ECS_SERVICE_NAME \
-            --task-definition $ECS_TASK_FAMILY
+            --task-definition $ECS_TASK_FAMILY:$LATEST_REVISION \
             --launch-type FARGATE
+
 
       - name: Post-Deployment Success Notification
         run: echo "Docker image successfully pushed to ECR"
