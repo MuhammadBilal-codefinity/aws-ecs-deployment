@@ -2,7 +2,7 @@ describe('Users Page Tests', () => {
     it('should load the users page', () => {
         cy.visit('/users'); // Visit the users page
         cy.url().should('include', '/users'); // Check the URL
-        cy.get('h1').contains('Users'); // Check page heading
+        cy.get('h1').contains('Users LIST'); // Check page heading just for checking cypress test
     });
 
     it('should display a list of users', () => {
