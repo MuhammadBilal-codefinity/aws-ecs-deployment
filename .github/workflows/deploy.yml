@@ -75,7 +75,7 @@ jobs:
             --container-definitions "[{
               \"name\": \"container-name\", 
               \"image\": \"$ECR_REPO_URI:$IMAGE_TAG\", 
-              \"memory\": 512,  # Example: 512MB of memory
+              \"memory\": 512,               
               \"essential\": true
             }]"
 
