@@ -76,7 +76,15 @@ jobs:
             --network-mode "awsvpc" \
             --requires-compatibilities "FARGATE" \
             --compatibilities "EC2" "FARGATE" \
-            --requires-attributes "com.amazonaws.ecs.capability.logging-driver.awslogs" "ecs.capability.execution-role-awslogs" "com.amazonaws.ecs.capability.ecr-auth" "com.amazonaws.ecs.capability.docker-remote-api.1.19" "com.amazonaws.ecs.capability.docker-remote-api.1.28" "ecs.capability.execution-role-ecr-pull" "com.amazonaws.ecs.capability.docker-remote-api.1.18" "ecs.capability.task-eni" "com.amazonaws.ecs.capability.docker-remote-api.1.29" \
+            --requires-attributes "com.amazonaws.ecs.capability.logging-driver.awslogs" \
+                                  "ecs.capability.execution-role-awslogs" \
+                                  "com.amazonaws.ecs.capability.ecr-auth" \
+                                  "com.amazonaws.ecs.capability.docker-remote-api.1.19" \
+                                  "com.amazonaws.ecs.capability.docker-remote-api.1.28" \
+                                  "ecs.capability.execution-role-ecr-pull" \
+                                  "com.amazonaws.ecs.capability.docker-remote-api.1.18" \
+                                  "ecs.capability.task-eni" \
+                                  "com.amazonaws.ecs.capability.docker-remote-api.1.29" \
             --container-definitions "[{
               \"name\": \"cluster-defination-2\", 
               \"image\": \"$ECR_REPO_URI:$IMAGE_TAG\", 
@@ -100,8 +108,6 @@ jobs:
             --cluster $ECS_CLUSTER_NAME \
             --service $ECS_SERVICE_NAME \
             --task-definition $ECS_TASK_FAMILY:$LATEST_REVISION
-
-    env:
 
       - name: Post-Deployment Success Notification
         run: echo "Docker image successfully pushed to ECR"
