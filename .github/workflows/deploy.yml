@@ -10,8 +10,11 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      ECR_REPO_URI: 242201278398.dkr.ecr.us-east-1.amazonaws.com/projects/cognito-todo  # Replace with your ECR repository URI
+      ECR_REPO_URI: 242201278398.dkr.ecr.us-east-1.amazonaws.com/projects/cognito-todo # Replace with your ECR repository URI
       IMAGE_TAG: latest
+      ECS_CLUSTER_NAME: cluster # Replace with your ECS cluster name
+      ECS_SERVICE_NAME: test-aqua # Replace with your ECS service name
+      ECS_TASK_FAMILY: cluster-2-defination # Replace with your ECS task family name
 
     steps:
       - name: Checkout Code
@@ -63,6 +66,25 @@ jobs:
       - name: Push Docker Image to ECR
         run: |
           docker push $ECR_REPO_URI:$IMAGE_TAG
+
+      - name: Update ECS Task Definition with New Image
+        run: |
+          # Register a new task definition with the updated image
+          aws ecs register-task-definition \
+            --family $ECS_TASK_FAMILY \
+            --container-definitions "[{
+              \"name\": \"container-name\", 
+              \"image\": \"$ECR_REPO_URI:$IMAGE_TAG\", 
+              \"essential\": true
+            }]"
+
+      - name: Update ECS Service with New Task Definition
+        run: |
+          # Update the ECS service to use the latest task definition revision
+          aws ecs update-service \
+            --cluster $ECS_CLUSTER_NAME \
+            --service $ECS_SERVICE_NAME \
+            --task-definition $ECS_TASK_FAMILY
 
       - name: Post-Deployment Success Notification
         run: echo "Docker image successfully pushed to ECR"
