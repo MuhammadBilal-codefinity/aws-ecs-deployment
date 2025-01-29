@@ -75,11 +75,20 @@ jobs:
             --memory "512" \
             --network-mode "awsvpc" \
             --container-definitions "[{
-              \"name\": \"container-name\", 
+              \"name\": \"cluster-defination-2\", 
               \"image\": \"$ECR_REPO_URI:$IMAGE_TAG\", 
               \"memory\": 512, 
-              \"essential\": true
-          }]" --query 'taskDefinition.taskDefinitionArn' --output text)
+              \"essential\": true,
+              \"portMappings\": [{
+              \"containerPort\": 5000,
+              \"hostPort\": 5000,
+              \"protocol\": \"tcp\"
+            }]
+          }]" \          
+          --requires-compatibilities "FARGATE" \
+          --compatibilities "EC2" "FARGATE" \
+          --requires-attributes "com.amazonaws.ecs.capability.logging-driver.awslogs" "ecs.capability.execution-role-awslogs" "com.amazonaws.ecs.capability.ecr-auth" "com.amazonaws.ecs.capability.docker-remote-api.1.19" "com.amazonaws.ecs.capability.docker-remote-api.1.28" "ecs.capability.execution-role-ecr-pull" "com.amazonaws.ecs.capability.docker-remote-api.1.18" "ecs.capability.task-eni" "com.amazonaws.ecs.capability.docker-remote-api.1.29" \
+          --query 'taskDefinition.taskDefinitionArn' --output text)
 
           # Extract the latest revision from the ARN (e.g., family-name:revision)
           LATEST_REVISION=$(echo $TASK_DEFINITION_ARN | awk -F':' '{print $2}')
