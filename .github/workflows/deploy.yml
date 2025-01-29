@@ -74,6 +74,7 @@ jobs:
             --cpu "256" \
             --memory "512" \
             --network-mode "awsvpc" \
+            --execution-role-arn arn:aws:iam::242201278398:role/ecsTaskExecutionRole \
             --requires-compatibilities "FARGATE" \
             --container-definitions "[{
               \"name\": \"cluster-defination-2\", 
@@ -84,7 +85,15 @@ jobs:
                 \"containerPort\": 5000,
                 \"hostPort\": 5000,
                 \"protocol\": \"tcp\"
-              }]
+              }],
+              \"logConfiguration\": {
+                \"logDriver\": \"awslogs\",
+                \"options\": {
+                  \"awslogs-group\": \"/ecs/cluster-2-defination\",
+                  \"awslogs-region\": \"us-east-1\",
+                  \"awslogs-stream-prefix\": \"ecs\"
+                }
+              }
             }]" \
             --query 'taskDefinition.taskDefinitionArn' --output text)
 
