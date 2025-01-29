@@ -1,49 +1,53 @@
-name: Deploy React App to AWS S3 and CloudFront
+name: CI/CD with Cypress Pre-Deployment Check
 
 on:
   push:
     branches:
       - main
-      - dev
 
 jobs:
-  build:
+  build-test-deploy:
     runs-on: ubuntu-latest
 
+    env:
+      ECR_REPO_URI: 242201278398.dkr.ecr.us-east-1.amazonaws.com/projects/cognito-todo  # Replace with your ECR repository URI
+      IMAGE_TAG: latest
+
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
       - name: Set up Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: 18
 
-      - name: Install dependencies
+      - name: Install Dependencies
         run: npm install
 
-      - name: Build React app
-        run: npm run build
-
-      - name: Deploy to AWS S3
+      - name: Run Cypress Tests (Fail on Test Failure)
         run: |
-          if [[ $GITHUB_REF == 'refs/heads/main' ]]; then
-            aws s3 sync dist/ s3://${{ secrets.AWS_S3_BUCKET_MAIN }} --delete
-          elif [[ $GITHUB_REF == 'refs/heads/dev' ]]; then
-            aws s3 sync dist/ s3://${{ secrets.AWS_S3_BUCKET_DEV }} --delete
-          fi
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
+          npx cypress run
 
-      - name: Invalidate CloudFront cache
-        run: |
-          if [[ $GITHUB_REF == 'refs/heads/main' ]]; then
-            aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID_MAIN }} --paths "/*"
-          elif [[ $GITHUB_REF == 'refs/heads/dev' ]]; then
-            aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID_DEV }} --paths "/*"
-          fi
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
+      # # Cypress tests passed if we reach this point
+      # - name: Configure AWS CLI
+      #   uses: aws-actions/configure-aws-credentials@v2
+      #   with:
+      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     aws-region: us-east-1
+
+      # - name: Log in to Amazon ECR
+      #   id: login-ecr
+      #   uses: aws-actions/amazon-ecr-login@v2
+
+      # - name: Build and Tag Docker Image
+      #   run: |
+      #     docker build -t $ECR_REPO_URI:$IMAGE_TAG .
+
+      # - name: Push Docker Image to ECR
+      #   run: |
+      #     docker push $ECR_REPO_URI:$IMAGE_TAG
+
+      # - name: Post-Deployment Success Notification
+      #   run: echo "Docker image successfully pushed to ECR"
