@@ -86,6 +86,7 @@ jobs:
             --cluster $ECS_CLUSTER_NAME \
             --service $ECS_SERVICE_NAME \
             --task-definition $ECS_TASK_FAMILY
+            --launch-type FARGATE
 
       - name: Post-Deployment Success Notification
         run: echo "Docker image successfully pushed to ECR"
