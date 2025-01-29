@@ -27,39 +27,42 @@ jobs:
 
       - name: Start the Server
         run: |
-          # Start your server in the background (for example, using `npm run dev` or Docker)
-          nohup npm run dev &  # or adjust to your server command
+          nohup npm run dev &
+
+      - name: Wait for the Server to Be Ready
+        run: |
+          until curl -s http://localhost:5173; do
+            echo "Waiting for server to start..."
+            sleep 5
+          done
+          echo "Server is up!"
 
       - name: Run Cypress Tests (Fail on Test Failure)
         run: |
-          # Wait a bit to ensure the server has started (use an appropriate wait time or polling method)
-          sleep 10
           npx cypress run
 
       - name: Post-Tests Cleanup (Optional)
         run: |
-          # Stop the server if needed
-          kill $(ps aux | grep 'npm start' | awk '{print $1}')
-          
-      # Uncomment and fill in the following if you need to deploy to ECR after tests pass
-      # - name: Configure AWS CLI
-      #   uses: aws-actions/configure-aws-credentials@v2
-      #   with:
-      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #     aws-region: us-east-1
+          pkill -f 'npm run dev'
 
-      # - name: Log in to Amazon ECR
-      #   id: login-ecr
-      #   uses: aws-actions/amazon-ecr-login@v2
+      - name: Configure AWS CLI
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
 
-      # - name: Build and Tag Docker Image
-      #   run: |
-      #     docker build -t $ECR_REPO_URI:$IMAGE_TAG .
+      - name: Log in to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
 
-      # - name: Push Docker Image to ECR
-      #   run: |
-      #     docker push $ECR_REPO_URI:$IMAGE_TAG
+      - name: Build and Tag Docker Image
+        run: |
+          docker build -t $ECR_REPO_URI:$IMAGE_TAG .
 
-      # - name: Post-Deployment Success Notification
-      #   run: echo "Docker image successfully pushed to ECR"
+      - name: Push Docker Image to ECR
+        run: |
+          docker push $ECR_REPO_URI:$IMAGE_TAG
+
+      - name: Post-Deployment Success Notification
+        run: echo "Docker image successfully pushed to ECR"
