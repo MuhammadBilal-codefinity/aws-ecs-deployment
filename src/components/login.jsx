@@ -45,6 +45,7 @@ const Login = () => {
     >
       <div>
         <h1>Login Page</h1>
+        <p>Please enter your credentials:</p>
 
         <form onSubmit={onSubmit} style={{ display: "flex", flexDirection: "column" }}>
           {formMessage && <p>{formMessage}</p>}

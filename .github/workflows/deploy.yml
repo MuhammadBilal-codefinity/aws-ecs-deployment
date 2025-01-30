@@ -13,7 +13,7 @@ jobs:
       ECR_REPO_URI: 242201278398.dkr.ecr.us-east-1.amazonaws.com/projects/cognito-todo # Replace with your ECR repository URI
       IMAGE_TAG: latest
       ECS_CLUSTER_NAME: cluster # Replace with your ECS cluster name
-      ECS_SERVICE_NAME: test-aqua # Replace with your ECS service name
+      ECS_SERVICE_NAME: test-aqua-2 # Replace with your ECS service name
       ECS_TASK_FAMILY: cluster-2-defination # Replace with your ECS task family name
 
     steps:
